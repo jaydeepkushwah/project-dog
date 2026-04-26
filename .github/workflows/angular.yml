@@ -107,7 +107,8 @@ permissions:
 
 jobs:
 
-  build:
+  lint:
+    name: Lint Code
     runs-on: ubuntu-latest
 
     steps:
@@ -118,11 +119,56 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
       - name: Install Packages
         run: npm ci
 
-      - name: Build Angular App
+      - name: Run Lint
+        run: npm run lint
+
+
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Packages
+        run: npm ci
+
+      - name: Run Tests
+        run: npm test -- --watch=false --browsers=ChromeHeadless
+
+
+  build:
+    name: Build Angular App
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Packages
+        run: npm ci
+
+      - name: Build Production
         run: npm run build -- --configuration production --base-href "/project-dog/"
 
       - name: Upload Build Files
@@ -130,15 +176,17 @@ jobs:
         with:
           path: dist/project-dog/browser
 
+
   deploy:
-    needs: build
+    name: Deploy Website
     runs-on: ubuntu-latest
+    needs: build
 
     environment:
-     name: github-pages
-     url: ${{ steps.deployment.outputs.page_url }}
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Deploy Website
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
