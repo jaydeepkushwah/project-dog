@@ -22,6 +22,12 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+    
+      - name: Run Tests
+        run: npm test -- --watch=false --browsers=ChromeHeadless
+
+      - name: Run Lint
+        run: npm run lint
 
       - name: Build Angular App
         run: npm run build
