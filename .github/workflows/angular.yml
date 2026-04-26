@@ -98,7 +98,10 @@ name: Deploy Angular to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [develop]
+    
+  pull_request:
+    branches: [develop, main]
 
 permissions:
   contents: read
