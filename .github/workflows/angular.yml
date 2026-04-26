@@ -93,15 +93,18 @@
 #       - run: npm ci
 #       - run: npm run build -- --configuration production
 
-
-name: Deploy Angular to GitHub Pages
+name: Angular Enterprise CI/CD
 
 on:
   push:
-    branches: [develop]
-    
+    branches:
+      - develop
+      - main
+
   pull_request:
-    branches: [develop, main]
+    branches:
+      - develop
+      - main
 
 permissions:
   contents: read
@@ -184,6 +187,8 @@ jobs:
     name: Deploy Website
     runs-on: ubuntu-latest
     needs: build
+
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     environment:
       name: github-pages
